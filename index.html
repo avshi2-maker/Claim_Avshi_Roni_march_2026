@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סיכום פרוייקט - מרפאת דיקור ורטריטים | פורטל מידע</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin-bottom: 30px; text-align: center; }
+        .header h1 { color: #667eea; font-size: 42px; margin-bottom: 10px; }
+        .tabs { background: white; border-radius: 15px; padding: 20px; margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .tab { padding: 15px 30px; background: #f0f0f0; border: none; border-radius: 10px; cursor: pointer; font-size: 18px; font-weight: bold; transition: all 0.3s; }
+        .tab:hover { background: #667eea; color: white; }
+        .tab.active { background: #667eea; color: white; }
+        .content { background: white; border-radius: 20px; padding: 40px; min-height: 600px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .filter-bar { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #2196f3; border-radius: 15px; padding: 25px; margin-bottom: 30px; }
+        .filter-section { margin-bottom: 20px; }
+        .filter-section:last-child { margin-bottom: 0; }
+        .filter-label { font-weight: bold; color: #1565c0; margin-bottom: 10px; font-size: 16px; }
+        .filter-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn { padding: 10px 20px; background: white; border: 2px solid #2196f3; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; color: #1565c0; }
+        .filter-btn:hover { background: #2196f3; color: white; }
+        .filter-btn.active { background: #2196f3; color: white; }
+        .search-box { width: 100%; padding: 12px; border: 2px solid #2196f3; border-radius: 8px; font-size: 16px; }
+        .filter-count { background: #4caf50; color: white; padding: 10px 20px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 15px; }
+        .evidence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
+        .evidence-card { background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; transition: all 0.3s; position: relative; }
+        .evidence-card:hover { border-color: #667eea; box-shadow: 0 10px 30px rgba(102,126,234,0.3); transform: translateY(-5px); }
+        .evidence-card.critical { border-color: #f5576c; background: #fff5f7; }
+        .evidence-card.critical::before { content: "🚨"; position: absolute; top: 10px; left: 10px; font-size: 24px; }
+        .evidence-card img { width: 100%; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: transform 0.3s; }
+        .evidence-card img:hover { transform: scale(1.05); }
+        .evidence-tag { display: inline-block; background: #667eea; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; margin: 4px 2px; }
+        .back-btn { background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; }
+        .stat-number { font-size: 48px; font-weight: bold; }
+        .btn { padding: 15px 30px; background: #c62828; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #b71c1c; }
+        .calc-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #2196f3; border-radius: 15px; padding: 30px; margin: 30px 0; text-align: center; }
+        .calc-box h3 { color: #1565c0; font-size: 24px; margin-bottom: 15px; }
+        .calc-btn { background: #2196f3; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: all 0.3s; }
+        .calc-btn:hover { background: #1976d2; transform: translateY(-2px); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); }
+        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 85%; margin-top: 2%; }
+        .close { position: absolute; top: 20px; right: 40px; color: white; font-size: 50px; font-weight: bold; cursor: pointer; z-index: 1001; }
+        .close:hover { color: #f5576c; }
+        .prev-arrow, .next-arrow { cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 60px; font-weight: bold; padding: 20px; user-select: none; transition: all 0.3s; background: rgba(0,0,0,0.5); border-radius: 10px; }
+        .prev-arrow:hover, .next-arrow:hover { background: rgba(102,126,234,0.8); transform: translateY(-50%) scale(1.1); }
+        .prev-arrow { left: 20px; }
+        .next-arrow { right: 20px; }
+        .slide-counter { position: absolute; top: 10px; left: 10px; color: rgba(255,255,255,0.7); font-size: 14px; background: rgba(0,0,0,0.3); padding: 5px 12px; border-radius: 15px; }
+        .dialogue-tab { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%) !important; color: white !important; font-weight: bold; animation: pulse-glow 2s infinite; }
+        .dialogue-tab:hover { background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(33,150,243,0.4); }
+        .dialogue-tab.active { background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important; }
+        @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 5px rgba(33,150,243,0.5); } 50% { box-shadow: 0 0 20px rgba(33,150,243,0.8); } }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 20px 15px; border-radius: 12px; }
+            .header h1 { font-size: 22px !important; line-height: 1.4; }
+            .tabs { padding: 10px; gap: 6px; border-radius: 10px; margin-bottom: 15px; }
+            .tab { padding: 10px 14px; font-size: 13px; border-radius: 8px; flex: 1 1 auto; text-align: center; min-width: 0; }
+            .content { padding: 15px 12px; border-radius: 12px; min-height: unset; }
+            .stat-number { font-size: 32px !important; }
+            .evidence-grid { grid-template-columns: 1fr !important; }
+            .filter-btn { padding: 8px 12px; font-size: 13px; }
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 14px; }
+            .btn, .calc-btn { width: 100%; font-size: 16px; padding: 12px; }
+            button, .tab, .filter-btn, .back-btn { min-height: 44px; }
+            .modal-content { max-width: 98% !important; max-height: 80% !important; }
+            .prev-arrow { font-size: 36px; padding: 12px; }
+            .next-arrow { font-size: 36px; padding: 12px; }
+        }
+        @media (max-width: 420px) {
+            .header h1 { font-size: 18px !important; }
+            .tab { font-size: 11px; padding: 8px 10px; }
+            .content { padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>סיכום פרוייקט: מרפאת דיקור מבוססת רפואה סינית וקידום חופשות ריטריט</h1>
+        <h2 style="color:#666;font-size:24px;margin-top:15px;">📋 פורטל מידע וראיות</h2>
+        <p style="color:#999;font-size:16px;margin-top:15px;">📅 עדכון אחרון: <span id="lastUpdated">21 בפברואר 2026</span></p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab" onclick="switchTab('background',event)">📘 רקע</button>
+        <button class="tab" onclick="switchTab('overview',event)">📋 סקירה</button>
+        <button class="tab" onclick="switchTab('timeline',event)">📅 ציר זמן</button>
+        <button class="tab" onclick="switchTab('evidence',event)">💬 ראיות</button>
+        <button class="tab" onclick="switchTab('portfolio',event)">🎯 תוצרים</button>
+        <button class="tab" onclick="switchTab('breach',event)">📋 התפתחויות בפברואר</button>
+        <button class="tab" onclick="switchTab('futureloss',event)">💸 אובדן הכנסה</button>
+        <button class="tab" onclick="switchTab('invoices',event)">📄 חשבוניות</button>
+        <button class="tab" onclick="switchTab('calculator',event)">📊 מחשבון ריבית</button>
+        <button class="tab" onclick="switchTab('whatif',event)">🎯 What If Scenarios</button>
+        <button class="tab dialogue-tab" onclick="switchTab('dialogue',event)">🤝 הזדמנות לדיאלוג הוגן</button>
+    </div>
+
+    <div class="content">
+
+        <!-- ══════════════════ BACKGROUND TAB ══════════════════ -->
+        <div id="background" class="tab-content active">
+            <h2 style="font-size:36px;margin-bottom:30px;">📘 רקע המקרה</h2>
+            <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:40px;border-radius:20px;text-align:center;margin-bottom:30px;">
+                <h3 style="font-size:28px;margin-bottom:15px;">📄 דו״ח רקע מקוצר</h3>
+                <p style="font-size:18px;line-height:1.8;margin-bottom:25px;">מסמך המפרט את היסטוריית השותפות, העבודה שבוצעה,<br>ההפרות החוזיות והבסיס לדרישת התשלום</p>
+                <a href="documents/backround_short_report.pdf" target="_blank" download style="background:white;color:#667eea;padding:15px 40px;border-radius:10px;text-decoration:none;font-size:20px;font-weight:bold;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.2);">📥 הורד מסמך רקע (PDF)</a>
+            </div>
+            <div style="background:#e3f2fd;padding:30px;border-radius:15px;margin:20px 0;">
+                <h3 style="color:#1976d2;font-size:24px;margin-bottom:20px;">📋 תוכן המסמך כולל:</h3>
+                <ul style="font-size:18px;line-height:2;color:#333;list-style-position:inside;">
+                    <li>🤝 היסטוריית השותפות עם ד״ר רוני ספיר</li>
+                    <li>💼 פירוט העבודה שבוצעה (600 שעות)</li>
+                    <li>💰 פירוט ההוצאות והעמלות</li>
+                    <li>🚨 הפרות ההסכם החד צדדיות</li>
+                    <li>⚖️ הבסיס לדרישת התשלום</li>
+                    <li>📊 סיכום החוב: ₪39,770</li>
+                </ul>
+            </div>
+            <div style="background:#fff3e0;padding:30px;border-radius:15px;margin:20px 0;border-right:5px solid #f57c00;">
+                <h3 style="color:#e65100;font-size:24px;margin-bottom:15px;">⚡ נקודות מפתח</h3>
+                <div style="font-size:18px;line-height:2;color:#333;">
+                    <p><strong>📅 תקופת העבודה:</strong> 6 חודשים (אוגוסט 2025 - פברואר 2026)</p>
+                    <p><strong>🎯 תוצרים:</strong> אתר קליניקה + אתר רטריט + 45 ראיות WhatsApp</p>
+                    <p><strong>💵 הכנסות שהניבה עבודתי:</strong> $7,500 (רטריט סרי לנקה)</p>
+                    <p><strong>🔴 תאריך הפרת האמונים:</strong> 14 בפברואר 2026</p>
+                </div>
+            </div>
+            <div style="background:#e8f5e9;padding:30px;border-radius:15px;text-align:center;">
+                <p style="font-size:18px;color:#2e7d32;line-height:1.8;">
+                    ✅ מסמך זה מהווה תיעוד מקיף של השותפות והעבודה<br>
+                    ✅ המסמך מבוסס על ראיות מתועדות ותקשורת WhatsApp<br>
+                    ✅ כל הנתונים ניתנים לאימות וביסוס
+                </p>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('overview',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לסקירה</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ OVERVIEW TAB ══════════════════ -->
+        <div id="overview" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">📋 סקירת המקרה</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;">
+                <div class="stat-box"><div class="stat-number">45</div><div style="font-size:18px;">ראיות WhatsApp</div></div>
+                <div class="stat-box"><div class="stat-number">₪8,665</div><div style="font-size:18px;">הוצאות</div></div>
+                <div class="stat-box"><div class="stat-number">600</div><div style="font-size:18px;">שעות עבודה</div></div>
+                <div class="stat-box"><div class="stat-number">₪39,770</div><div style="font-size:18px;">חוב כולל</div></div>
+            </div>
+            <div class="calc-box">
+                <h3>💰 חישוב ריבית עדכני</h3>
+                <div style="font-size:20px;margin:15px 0;"><strong>סכום כולל החוב + ריבית:</strong> <span id="quick-total" style="font-size:32px;color:#e65100;">₪39,770</span></div>
+                <p style="color:#666;margin:10px 0;"><span id="quick-days">0</span> ימים באיחור | ריבית: <span id="quick-interest">₪0</span></p>
+                <button class="calc-btn" onclick="switchTab('calculator',event)">📊 מחשבון ריבית מפורט - כל חשבונית בנפרד</button>
+            </div>
+            <div style="margin-top:40px;background:#fff3e0;padding:30px;border-radius:15px;">
+                <h3 style="color:#e65100;font-size:28px;margin-bottom:20px;">📅 התפתחות בלתי צפויה — פברואר 2026</h3>
+                <p style="font-size:20px;line-height:1.8;">14 בפברואר 2026 - גיליתי בפייסבוק שד״ר רוני מפרסם רטריט חדש ביוני, ללא כל עדכון מוקדם אלי.</p>
+                <button class="btn" onclick="switchTab('breach',event)" style="margin-top:20px;">צפה בראייה</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ TIMELINE TAB ══════════════════ -->
+        <div id="timeline" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;text-align:center;">📅 ציר זמן - כרונולוגיה של האירועים</h2>
+            <div style="max-width:900px;margin:0 auto;">
+                <div style="padding:25px;background:#e3f2fd;border-radius:12px;margin:25px 0;border-right:6px solid #2196f3;">
+                    <div style="font-weight:bold;color:#1976d2;font-size:22px;margin-bottom:10px;">📅 2025 - התחלת השותפות</div>
+                    <p style="font-size:17px;line-height:1.8;">בשנת 2025, במהלך ריצות מרתון משותפות בשבתות, רוני ואבשי תכננו יחד פרויקט משותף:<br>🏥 מרפאת דיקור מבוססת רפואה סינית<br>🌴 חופשות ריטריט בסרי לנקה<br>חלוקה: 20% אבשי / 80% רוני</p>
+                </div>
+                <div style="padding:25px;background:#e8f5e9;border-radius:12px;margin:25px 0;border-right:6px solid #4caf50;">
+                    <div style="font-weight:bold;color:#2e7d32;font-size:22px;margin-bottom:10px;">📅 יוני-דצמבר 2025 - תקופת הפיתוח</div>
+                    <p style="font-size:17px;line-height:1.8;">אבשי פיתח 9 אתרים מקצועיים:<br>✅ אתרי נחיתה לריטריט<br>✅ מערכת ניהול קליניקה<br>✅ אנציקלופדיה רפואה סינית<br>✅ אתר פרסומי לפייסבוק<br>השקעה: מאות שעות עבודה</p>
+                </div>
+                <div style="padding:25px;background:#fff3e0;border-radius:12px;margin:25px 0;border-right:6px solid #f57c00;">
+                    <div style="font-weight:bold;color:#e65100;font-size:22px;margin-bottom:10px;">📅 ינואר 2026 - הריטריט הראשון</div>
+                    <p style="font-size:17px;line-height:1.8;">רוני נוסע לריטריט בסרי לנקה (14-24 בינואר 2026).<br>משתמש באתרים שאבשי בנה.<br>6 לקוחות משלמים $1,250 = $7,500 הכנסה.<br>חלק אבשי (20%): $1,500 = ₪5,550</p>
+                </div>
+                <div style="padding:25px;background:#fce4ec;border-radius:12px;margin:25px 0;border-right:6px solid #e91e63;">
+                    <div style="font-weight:bold;color:#c2185b;font-size:22px;margin-bottom:10px;">📅 11 בפברואר 2026 - רוני חזר מסרי לנקה</div>
+                    <p style="font-size:17px;line-height:1.8;">רוני חוזר לארץ. לא מדווח על ההכנסה ולא משלם את העמלה המגיעה.<br><strong>₪5,400 + מע״מ</strong> — רוני לא משיב. שתיקה מוחלטת.</p>
+                </div>
+                <div style="padding:25px;background:#fff8e1;border-radius:12px;margin:25px 0;border-right:6px solid #f9a825;">
+                    <div style="font-weight:bold;color:#f57f17;font-size:24px;margin-bottom:10px;">📅 14 בפברואר 2026 — מה שגיליתי</div>
+                    <p style="font-size:17px;line-height:1.8;"><strong style="color:#e65100;">גיליתי בפייסבוק הפרטי של רוני:</strong><br>רוני מפרסם ריטריט חדש ביוני 2026.<br>האתרים שבניתי עבורו משמשים לפרסום.<br>לא קיבלתי כל עדכון או הודעה מוקדמת.<br><strong>זה לא היה הסיכום שלנו.</strong></p>
+                </div>
+                <div style="padding:25px;background:#e3f2fd;border-radius:12px;margin:25px 0;border-right:6px solid #2196f3;">
+                    <div style="font-weight:bold;color:#1976d2;font-size:22px;margin-bottom:10px;">📅 15 בפברואר 2026 - דרישת תשלום</div>
+                    <p style="font-size:17px;line-height:1.8;">אבשי שולח חשבונית מס רשמית: ₪10,370<br>רוני לא משיב. לא משלם. ממשיך להתעלם.</p>
+                </div>
+                <div style="padding:25px;background:#f3e5f5;border-radius:12px;margin:25px 0;border-right:6px solid #7b1fa2;">
+                    <div style="font-weight:bold;color:#6a1b9a;font-size:22px;margin-bottom:10px;">📅 22 בפברואר 2026 - המצב הנוכחי</div>
+                    <p style="font-size:17px;line-height:1.8;"><strong>חוב נוכחי:</strong> ₪39,770 (כולל ריבית)<br><strong>אובדן הכנסה עתידי:</strong> ₪190,994<br><strong>סה"כ נזק:</strong> ₪230,764+<br><br>אבשי, בן 72, מחפש פתרון הוגן והגיוני.</p>
+                </div>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ EVIDENCE TAB ══════════════════ -->
+        <div id="evidence" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">💬 ראיות WhatsApp (45 עמודים)</h2>
+            <div class="filter-bar">
+                <div class="filter-section">
+                    <div class="filter-label">🔍 חיפוש לפי נושא:</div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-category="all" onclick="applyFilter()">הכל</button>
+                        <button class="filter-btn" data-category="partnership" onclick="applyFilter()">🤝 שותפות</button>
+                        <button class="filter-btn" data-category="work" onclick="applyFilter()">💼 עבודה</button>
+                        <button class="filter-btn" data-category="money" onclick="applyFilter()">💰 כסף</button>
+                        <button class="filter-btn" data-category="retreat" onclick="applyFilter()">🌴 רטריט</button>
+                        <button class="filter-btn" data-category="breach_of_trust" onclick="applyFilter()">🚨 הפרת אמונים</button>
+                        <button class="filter-btn" data-category="conflict" onclick="applyFilter()">⚠️ סכסוך</button>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-label">⭐ חשיבות:</div>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-importance="all" onclick="applyFilter()">הכל</button>
+                        <button class="filter-btn" data-importance="5" onclick="applyFilter()">🚨 קריטי</button>
+                        <button class="filter-btn" data-importance="4" onclick="applyFilter()">⚡ גבוה</button>
+                        <button class="filter-btn" data-importance="3" onclick="applyFilter()">📌 בינוני</button>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-label">🔎 חיפוש חופשי:</div>
+                    <input type="text" class="search-box" id="searchBox" placeholder="חפש בתוכן הראיות..." oninput="applyFilter()">
+                </div>
+                <div id="activeFiltersDisplay" style="background:#fff3cd;border:2px solid #ffc107;border-radius:8px;padding:15px;margin-top:15px;display:none;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div><strong style="color:#856404;">🔍 סינון פעיל:</strong> <span id="activeFiltersText" style="color:#856404;font-weight:600;margin-right:10px;"></span></div>
+                        <button onclick="clearAllFilters()" style="background:#dc3545;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;">🗑️ נקה הכל</button>
+                    </div>
+                </div>
+                <div class="filter-count" id="filterCount">מציג 45 מתוך 45 ראיות</div>
+            </div>
+            <div class="evidence-grid" id="evidence-grid"></div>
+        </div>
+
+        <!-- ══════════════════ BREACH TAB ══════════════════ -->
+        <div id="breach" class="tab-content">
+            <div style="background:linear-gradient(135deg,#f57f17 0%,#e65100 100%);color:white;padding:40px;border-radius:20px;text-align:center;">
+                <h3 style="font-size:32px;">📋 התפתחויות בפברואר 2026</h3>
+                <p style="font-size:22px;margin-top:20px;line-height:1.8;">14 בפברואר — גיליתי שרוני מפרסם ריטריט חדש ביוני<br>ללא עדכון מוקדם, תוך שימוש באתרים שבניתי</p>
+            </div>
+            <div style="margin-top:30px;text-align:center;">
+                <img src="whatsapp-evidence/Slide41.PNG" onclick="openCarousel(39)" style="max-width:100%;border:5px solid #c62828;border-radius:15px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+                <p style="margin-top:30px;font-size:22px;">
+                    <strong>מה זה מוכיח:</strong><br>
+                    ✅ ד״ר רוני ממשיך את העסק<br>
+                    ✅ משתמש באתרים שבניתי<br>
+                    ✅ מתכנן להרוויח עוד אלפי דולרים<br>
+                    ✅ לא אמר לי מילה!<br><br>
+                    <strong style="color:#c62828;">זו הוכחה שאין לו בעיית כסף - יש לו בעיה לשלם לי!</strong>
+                </p>
+                <button class="btn" onclick="switchTab('overview',event)" style="margin-top:20px;background:#667eea;">◀ חזור</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ INVOICES TAB ══════════════════ -->
+        <div id="invoices" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">📄 חשבוניות ודרישות תשלום</h2>
+            
+            <div style="background:#e3f2fd;padding:30px;border-radius:15px;margin:20px 0;border-right:5px solid #2196f3;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+                    <div>
+                        <h3 style="color:#1976d2;font-size:24px;margin-bottom:10px;">📄 חשבונית מס׳ 10005</h3>
+                        <p style="font-size:20px;margin:5px 0;"><strong>סכום:</strong> <span style="color:#c62828;font-size:28px;font-weight:bold;">₪10,370</span></p>
+                        <p style="font-size:16px;color:#666;margin:5px 0;">תאריך הנפקה: 15 בפברואר 2026</p>
+                        <p style="font-size:18px;color:#d32f2f;margin:10px 0;font-weight:bold;">⚠️ חשבונית מס' 10005 טרם שולמה</p>
+                    </div>
+                    <a href="invoices/invoice10005.pdf" target="_blank" style="background:#2196f3;color:white;padding:15px 30px;border-radius:10px;text-decoration:none;font-size:18px;font-weight:bold;display:inline-block;">💾 הורד חשבונית PDF</a>
+                </div>
+            </div>
+
+            <div style="background:linear-gradient(135deg,#ff6b6b 0%,#c92a2a 100%);color:white;padding:35px;border-radius:15px;margin:30px 0;border:4px solid #d32f2f;box-shadow:0 8px 25px rgba(211,47,47,0.4);">
+                <div style="text-align:center;margin-bottom:25px;">
+                    <h3 style="font-size:32px;margin-bottom:15px;">📊 פירוט מפורט של הוצאות - חשבונית 10005</h3>
+                </div>
+                <div style="background:white;color:#333;padding:30px;border-radius:12px;margin:20px 0;">
+                    <h4 style="color:#c62828;font-size:24px;margin-bottom:20px;text-align:center;">💳 22 ספקים שונים - הוצאות מתועדות</h4>
+                    <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:25px;border-radius:12px;text-align:center;margin-top:25px;">
+                        <p style="font-size:20px;margin-bottom:10px;"><strong>סה"כ הוצאות מתועדות:</strong></p>
+                        <p style="font-size:48px;font-weight:bold;margin:10px 0;">₪8,665</p>
+                        <p style="font-size:16px;opacity:0.95;margin-top:10px;">22 ספקים שונים | כל הוצאה מסומכת בויזה</p>
+                    </div>
+                </div>
+                <div style="text-align:center;margin-top:25px;">
+                    <a href="invoices/VENDOR_EXPENSES_SUMMARY.xlsx" target="_blank" download style="background:white;color:#c62828;padding:20px 50px;border-radius:12px;text-decoration:none;font-size:22px;font-weight:bold;display:inline-block;box-shadow:0 6px 20px rgba(0,0,0,0.3);">📥 הורד דוח ספקים מפורט (Excel)</a>
+                </div>
+            </div>
+
+            <div style="background:#f3e5f5;padding:30px;border-radius:15px;margin:20px 0;border-right:5px solid #7b1fa2;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+                    <div>
+                        <h3 style="color:#7b1fa2;font-size:24px;margin-bottom:10px;">📄 פרופורמה - עמלת רטריט</h3>
+                        <p style="font-size:20px;margin:5px 0;"><strong>סכום:</strong> <span style="color:#7b1fa2;font-size:28px;font-weight:bold;">₪5,400</span></p>
+                        <p style="font-size:16px;color:#666;margin:5px 0;">תאריך הנפקה: 20 בפברואר 2026</p>
+                    </div>
+                    <a href="invoices/proforma_retreat_commission.pdf" target="_blank" style="background:#7b1fa2;color:white;padding:15px 30px;border-radius:10px;text-decoration:none;font-size:18px;font-weight:bold;display:inline-block;">💾 הורד חשבונית PDF</a>
+                </div>
+            </div>
+
+            <div style="background:#fff3e0;padding:30px;border-radius:15px;margin:20px 0;border-right:5px solid #f57c00;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+                    <div>
+                        <h3 style="color:#e65100;font-size:24px;margin-bottom:10px;">📄 פרופורמה - שעות עבודה</h3>
+                        <p style="font-size:20px;margin:5px 0;"><strong>סכום:</strong> <span style="color:#e65100;font-size:28px;font-weight:bold;">₪24,000</span></p>
+                        <p style="font-size:16px;color:#666;margin:5px 0;">600 שעות × ₪40/שעה</p>
+                    </div>
+                    <a href="invoices/proforma_workhours.pdf" target="_blank" style="background:#f57c00;color:white;padding:15px 30px;border-radius:10px;text-decoration:none;font-size:18px;font-weight:bold;display:inline-block;">💾 הורד חשבונית PDF</a>
+                </div>
+            </div>
+
+            <div style="background:linear-gradient(135deg,#ffd54f 0%,#ffb300 100%);color:#3e2723;padding:25px;border-radius:15px;margin:30px 0;text-align:center;border:3px solid #ff6f00;">
+                <p style="font-size:20px;font-weight:bold;margin-bottom:10px;">⚠️ הערה חשובה - מע״מ</p>
+                <p style="font-size:18px;line-height:1.8;">החשבוניות הן <strong>פרופורמות</strong>. במידה ויאושרו, <strong>יתווסף מע״מ כחוק</strong> (18%) בחשבוניות הרשמיות.</p>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ CALCULATOR TAB ══════════════════ -->
+        <div id="calculator" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">📊 מחשבון ריבית מפורט</h2>
+            <div style="background:#e3f2fd;padding:30px;border-radius:15px;margin-bottom:20px;">
+                <h3 style="color:#1976d2;font-size:24px;margin-bottom:20px;">🧮 חישוב ריבית לכל חשבונית בנפרד</h3>
+                <div style="background:white;padding:25px;border-radius:10px;margin-bottom:15px;border-right:5px solid #2196f3;">
+                    <h4 style="color:#1976d2;font-size:20px;margin-bottom:10px;">📄 חשבונית מס׳ 10005</h4>
+                    <p><strong>סכום בסיס:</strong> ₪10,370 | <strong>תאריך:</strong> 15/02/2026 | <strong>ימים באיחור:</strong> <span id="days1">0</span></p>
+                    <p><strong>ריבית צבורה:</strong> <span id="interest1" style="color:#c62828;">₪0.00</span> | <strong>סה״כ:</strong> <span id="total1" style="color:#1976d2;font-size:20px;">₪10,370.00</span></p>
+                </div>
+                <div style="background:white;padding:25px;border-radius:10px;margin-bottom:15px;border-right:5px solid #7b1fa2;">
+                    <h4 style="color:#7b1fa2;font-size:20px;margin-bottom:10px;">📄 פרופורמה - עמלת רטריט</h4>
+                    <p><strong>סכום בסיס:</strong> ₪5,400 | <strong>תאריך:</strong> 11/02/2026 | <strong>ימים באיחור:</strong> <span id="days2">0</span></p>
+                    <p><strong>ריבית צבורה:</strong> <span id="interest2" style="color:#c62828;">₪0.00</span> | <strong>סה״כ:</strong> <span id="total2" style="color:#7b1fa2;font-size:20px;">₪5,400.00</span></p>
+                </div>
+                <div style="background:white;padding:25px;border-radius:10px;border-right:5px solid #f57c00;">
+                    <h4 style="color:#e65100;font-size:20px;margin-bottom:10px;">📄 פרופורמה - שעות עבודה</h4>
+                    <p><strong>סכום בסיס:</strong> ₪24,000 | <strong>תאריך:</strong> 15/02/2026 | <strong>ימים באיחור:</strong> <span id="days3">0</span></p>
+                    <p><strong>ריבית צבורה:</strong> <span id="interest3" style="color:#c62828;">₪0.00</span> | <strong>סה״כ:</strong> <span id="total3" style="color:#e65100;font-size:20px;">₪24,000.00</span></p>
+                </div>
+            </div>
+            <div style="background:linear-gradient(135deg,#ffd54f 0%,#ffb300 100%);padding:40px;border-radius:20px;margin:30px 0;text-align:center;">
+                <h3 style="font-size:32px;margin-bottom:20px;color:#e65100;">💰 סיכום כולל</h3>
+                <div style="background:white;padding:30px;border-radius:15px;margin:20px 0;">
+                    <div style="font-size:20px;line-height:2;color:#333;">
+                        <p><strong>חשבונית 10005:</strong> ₪10,370 + <span id="interestSum1">₪0</span> = <span id="totalSum1">₪10,370</span></p>
+                        <p><strong>עמלת רטריט:</strong> ₪5,400 + <span id="interestSum2">₪0</span> = <span id="totalSum2">₪5,400</span></p>
+                        <p><strong>שעות עבודה:</strong> ₪24,000 + <span id="interestSum3">₪0</span> = <span id="totalSum3">₪24,000</span></p>
+                    </div>
+                    <hr style="border:3px solid #ffa726;margin:25px 0;">
+                    <div style="font-size:28px;font-weight:bold;color:#e65100;margin:20px 0;">
+                        <p>סה״כ חוב בסיס: ₪39,770.00</p>
+                        <p style="color:#c62828;">סה״כ ריבית צבורה: <span id="combinedInterest">₪0.00</span></p>
+                        <p style="font-size:36px;margin-top:15px;">סה״כ לתשלום: <span id="combinedTotal">₪39,770.00</span></p>
+                    </div>
+                    <p style="font-size:18px;color:#666;margin-top:15px;">📅 נכון ליום: <span id="calculationDate">היום</span></p>
+                </div>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ FUTURELOSS TAB ══════════════════ -->
+        <div id="futureloss" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">💸 אובדן הכנסה עתידי אפשרי</h2>
+            <div style="background:linear-gradient(135deg,#d32f2f 0%,#c62828 100%);color:white;padding:30px;border-radius:15px;text-align:center;margin-bottom:30px;">
+                <h3 style="font-size:32px;margin-bottom:15px;">⚠️ הקשר החשוב</h3>
+                <p style="font-size:24px;margin:10px 0;"><strong>אבשי ספיר - בן 72 שנים</strong></p>
+                <p style="font-size:18px;margin:10px 0;">זו הייתה תוכנית הפרישה שלו - הושמדה בבת אחת.</p>
+            </div>
+            <div style="background:#fff3e0;padding:30px;border-radius:15px;margin:30px 0;border:3px solid #f57c00;">
+                <h3 style="color:#e65100;font-size:28px;margin-bottom:20px;">🌴 זרם הכנסה #1: ריטריט סרי לנקה</h3>
+                <p style="font-size:20px;line-height:2;"><strong>30 לקוחות בשנה × $250 = $7,500</strong><br>חלק אבשי (20%): $1,500 × 5 שנים = <strong>$7,500 (₪27,750)</strong></p>
+            </div>
+            <div style="background:#f3e5f5;padding:30px;border-radius:15px;margin:30px 0;border:3px solid #7b1fa2;">
+                <h3 style="color:#7b1fa2;font-size:28px;margin-bottom:20px;">🏥 זרם הכנסה #2: קליניקת דיקור</h3>
+                <p style="font-size:18px;line-height:2;">הערכה שמרנית 5 שנים: <strong>$44,120 (₪163,244)</strong></p>
+                <div style="text-align:center;margin:20px 0;">
+                    <a href="documents/ROI_Analysis_TCM_Clinic.xlsx" target="_blank" style="background:#7b1fa2;color:white;padding:15px 40px;border-radius:10px;text-decoration:none;font-size:18px;font-weight:bold;display:inline-block;">📄 הורד ניתוח ROI מקצועי (Excel)</a>
+                </div>
+            </div>
+            <div style="background:linear-gradient(135deg,#d32f2f 0%,#c62828 100%);color:white;padding:40px;border-radius:20px;margin:40px 0;text-align:center;">
+                <h3 style="font-size:36px;margin-bottom:30px;">💰 סיכום אובדן הכנסה עתידי</h3>
+                <p style="font-size:42px;font-weight:bold;color:#ffeb3b;">₪190,994</p>
+                <p style="font-size:28px;margin-top:20px;">סה״כ נזק כולל: <strong>₪230,764+</strong></p>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ PORTFOLIO TAB ══════════════════ -->
+        <div id="portfolio" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">🎯 תוצרים - מה נמסר לרוני</h2>
+            <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:40px;border-radius:20px;text-align:center;margin-bottom:30px;">
+                <h3 style="font-size:32px;margin-bottom:15px;">📊 סיכום ביצועים</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:30px;">
+                    <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:10px;"><div style="font-size:48px;font-weight:bold;">600</div><div style="font-size:18px;">שעות עבודה</div></div>
+                    <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:10px;"><div style="font-size:48px;font-weight:bold;">3</div><div style="font-size:18px;">פרויקטים מלאים</div></div>
+                    <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:10px;"><div style="font-size:48px;font-weight:bold;">6</div><div style="font-size:18px;">חודשי עבודה</div></div>
+                    <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:10px;"><div style="font-size:48px;font-weight:bold;">$7.5K</div><div style="font-size:18px;">הכנסות שהניבה עבודתי</div></div>
+                </div>
+            </div>
+            <!-- External Links -->
+            <div style="background:#e3f2fd;padding:30px;border-radius:15px;margin:30px 0;border:3px solid #2196f3;">
+                <h3 style="color:#1976d2;font-size:28px;margin-bottom:20px;text-align:center;">🌐 קישורים לעבודות - ראיות חיות!</h3>
+                <h4 style="color:#1976d2;margin:20px 0 15px 0;font-size:22px;">📊 פרויקטים ראשיים</h4>
+                <div id="mainProjectLinks" style="display:grid;gap:15px;"></div>
+                <div style="background:#fff3e0;padding:25px;border-radius:10px;margin-top:30px;border:2px solid #f57c00;">
+                    <h4 style="color:#e65100;margin-bottom:15px;font-size:22px;">🎁 עבודות פרטיות לרוני (ללא תשלום!)</h4>
+                    <div id="privateWorkLinks" style="display:grid;gap:15px;"></div>
+                </div>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ WHATIF TAB ══════════════════ -->
+        <div id="whatif" class="tab-content">
+            <h2 style="font-size:36px;margin-bottom:30px;">🎯 What If Analysis - ניתוח תרחישים</h2>
+            <div style="background:linear-gradient(135deg,#D32F2F 0%,#C62828 100%);color:white;padding:40px;border-radius:20px;text-align:center;margin-bottom:30px;">
+                <h3 style="font-size:32px;margin-bottom:20px;">💡 שאלה לרוני: מה היה קורה בלי אבשי?</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin:30px 0;">
+                <div style="background:linear-gradient(135deg,#F57C00 0%,#E65100 100%);color:white;padding:25px;border-radius:15px;text-align:center;"><div style="font-size:48px;margin-bottom:10px;">₪72,000</div><div style="font-size:18px;">מחיר שוק מלא</div></div>
+                <div style="background:linear-gradient(135deg,#4CAF50 0%,#2E7D32 100%);color:white;padding:25px;border-radius:15px;text-align:center;"><div style="font-size:48px;margin-bottom:10px;">₪24,000</div><div style="font-size:18px;">מה שרוני שילם</div></div>
+                <div style="background:linear-gradient(135deg,#9C27B0 0%,#7B1FA2 100%);color:white;padding:25px;border-radius:15px;text-align:center;"><div style="font-size:48px;margin-bottom:10px;">67%</div><div style="font-size:18px;">אחוז ההנחה שרוני קיבל!</div></div>
+            </div>
+            <div style="background:linear-gradient(135deg,#4CAF50 0%,#2E7D32 100%);color:white;padding:40px;border-radius:20px;text-align:center;margin-top:40px;">
+                <h3 style="font-size:32px;margin-bottom:25px;">📥 הורד את הניתוח המלא</h3>
+                <a href="invoices/WORK_SUMMARY_WHATIF.xlsx" target="_blank" download style="background:white;color:#2E7D32;padding:25px 60px;border-radius:15px;text-decoration:none;font-size:24px;font-weight:bold;display:inline-block;box-shadow:0 6px 20px rgba(0,0,0,0.3);">📊 הורד ניתוח What If מלא (Excel)</a>
+            </div>
+            <div style="text-align:center;margin:40px 0 30px 0;">
+                <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+            </div>
+        </div>
+
+        <!-- ══════════════════ DIALOGUE TAB ══════════════════ -->
+        <div id="dialogue" class="tab-content">
+            <div style="background:#f8f9fa;padding:20px;border-radius:15px;">
+                <h2 style="font-size:36px;margin:0 0 30px 0;text-align:center;">🤝 הזדמנות לדיאלוג הוגן</h2>
+                <div style="background:linear-gradient(135deg,#2196f3 0%,#1976d2 100%);color:white;padding:35px;border-radius:15px;margin-bottom:30px;">
+                    <h3 style="font-size:28px;margin-bottom:20px;text-align:center;">💙 מסר תום לב</h3>
+                    <div style="background:rgba(255,255,255,0.95);color:#333;padding:30px;border-radius:10px;line-height:2;">
+                        <p style="font-size:18px;margin-bottom:20px;">לפני שנמשיך לגורמים חיצוניים, אני נותן לרוני הזדמנות להגיב ולהציג את עמדתו.</p>
+                        <p style="font-size:18px;color:#e65100;"><strong>העדפתי: שיחה הוגנת ופתרון ישיר.</strong></p>
+                    </div>
+                </div>
+                <div style="background:white;padding:35px;border-radius:15px;margin:30px 0;border:2px solid #2196f3;">
+                    <h3 style="color:#1976d2;font-size:28px;margin-bottom:20px;text-align:center;">💬 התגובה שלך על כל הדף</h3>
+                    <textarea id="comment-dialogue" style="width:100%;min-height:300px;padding:20px;border:2px solid #2196f3;border-radius:10px;font-size:17px;font-family:Arial,sans-serif;resize:vertical;line-height:1.6;" placeholder="רוני, כאן תוכל לכתוב את תגובתך המלאה..."></textarea>
+                    <div style="text-align:center;margin-top:25px;">
+                        <button onclick="downloadComment()" style="background:linear-gradient(135deg,#4caf50 0%,#45a049 100%);color:white;padding:20px 50px;border:none;border-radius:12px;font-size:20px;font-weight:bold;cursor:pointer;">💾 שמור קובץ ושלח בדוא"ל</button>
+                        <div id="save-status-dialogue" style="margin-top:20px;font-size:18px;font-weight:bold;"></div>
+                        <div style="background:#fff3e0;padding:20px;border-radius:10px;margin-top:20px;border-right:4px solid #f57c00;">
+                            <h4 style="color:#e65100;margin-bottom:10px;">📧 שלח ל: avshi2@gmail.com</h4>
+                            <p>נושא: "תגובה לדף הראיות"</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center;margin:40px 0 30px 0;">
+                    <button onclick="switchTab('background',event)" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 40px;border:none;border-radius:10px;font-size:18px;font-weight:bold;cursor:pointer;">🏠 חזרה לעמוד ראשון</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /container -->
+
+<!-- IMAGE MODAL -->
+<div id="imageModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="slide-counter" id="slideCounter">1 / 45</div>
+    <span class="prev-arrow" onclick="changeSlide(-1)">◀</span>
+    <span class="next-arrow" onclick="changeSlide(1)">▶</span>
+    <img class="modal-content" id="modalImage">
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  STATIC DATA — no Supabase needed
+// ═══════════════════════════════════════
+const EVIDENCE_DATA = [{"slide_number": 2, "title": "Slide 2", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide2.PNG"}, {"slide_number": 3, "title": "Slide 3", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide3.PNG"}, {"slide_number": 4, "title": "Slide 4", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide4.PNG"}, {"slide_number": 5, "title": "Slide 5", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide5.PNG"}, {"slide_number": 6, "title": "Slide 6", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide6.PNG"}, {"slide_number": 7, "title": "Slide 7", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide7.PNG"}, {"slide_number": 8, "title": "Slide 8", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide8.PNG"}, {"slide_number": 9, "title": "Slide 9", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide9.PNG"}, {"slide_number": 10, "title": "Slide 10", "category": "partnership", "importance": 3, "tags": ["partnership", "agreement", "discussion"], "keywords": "הסכם שותפות דיונים", "image_url": "whatsapp-evidence/Slide10.PNG"}, {"slide_number": 11, "title": "Slide 11", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide11.PNG"}, {"slide_number": 12, "title": "Slide 12", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide12.PNG"}, {"slide_number": 13, "title": "Slide 13", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide13.PNG"}, {"slide_number": 14, "title": "Slide 14", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide14.PNG"}, {"slide_number": 15, "title": "Slide 15", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide15.PNG"}, {"slide_number": 16, "title": "Slide 16", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide16.PNG"}, {"slide_number": 17, "title": "Slide 17", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide17.PNG"}, {"slide_number": 18, "title": "Slide 18", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide18.PNG"}, {"slide_number": 19, "title": "Slide 19", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide19.PNG"}, {"slide_number": 20, "title": "Slide 20", "category": "work", "importance": 3, "tags": ["work", "development", "technical"], "keywords": "עבודה פיתוח טכני אתר", "image_url": "whatsapp-evidence/Slide20.PNG"}, {"slide_number": 21, "title": "Slide 21", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide21.PNG"}, {"slide_number": 22, "title": "Slide 22", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide22.PNG"}, {"slide_number": 23, "title": "Slide 23", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide23.PNG"}, {"slide_number": 24, "title": "Slide 24", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide24.PNG"}, {"slide_number": 25, "title": "Slide 25", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide25.PNG"}, {"slide_number": 26, "title": "Slide 26", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide26.PNG"}, {"slide_number": 27, "title": "Slide 27", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide27.PNG"}, {"slide_number": 28, "title": "Slide 28", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide28.PNG"}, {"slide_number": 29, "title": "Slide 29", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide29.PNG"}, {"slide_number": 30, "title": "Slide 30", "category": "money", "importance": 4, "tags": ["money", "payment", "expenses"], "keywords": "כסף תשלום הוצאות חשבון", "image_url": "whatsapp-evidence/Slide30.PNG"}, {"slide_number": 31, "title": "Slide 31", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide31.PNG"}, {"slide_number": 32, "title": "Slide 32", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide32.PNG"}, {"slide_number": 33, "title": "Slide 33", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide33.PNG"}, {"slide_number": 34, "title": "Slide 34", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide34.PNG"}, {"slide_number": 35, "title": "Slide 35", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide35.PNG"}, {"slide_number": 36, "title": "Slide 36", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide36.PNG"}, {"slide_number": 37, "title": "Slide 37", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide37.PNG"}, {"slide_number": 38, "title": "Slide 38", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide38.PNG"}, {"slide_number": 39, "title": "Slide 39", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide39.PNG"}, {"slide_number": 40, "title": "Slide 40", "category": "retreat", "importance": 4, "tags": ["retreat", "srilanka", "success"], "keywords": "רטריט סרילנקה הצלחה לקוחות", "image_url": "whatsapp-evidence/Slide40.PNG"}, {"slide_number": 41, "title": "THE BETRAYAL", "category": "breach_of_trust", "importance": 5, "tags": ["breach_of_trust", "critical", "smoking_gun", "feb14"], "keywords": "הפרת אמונים הפרת הסכם פברואר רטריט חדש", "image_url": "whatsapp-evidence/Slide41.PNG"}, {"slide_number": 42, "title": "Slide 42", "category": "conflict", "importance": 4, "tags": ["conflict", "dispute", "resolution"], "keywords": "סכסוך מחלוקת פתרון משא ומתן", "image_url": "whatsapp-evidence/Slide42.PNG"}, {"slide_number": 43, "title": "Slide 43", "category": "conflict", "importance": 4, "tags": ["conflict", "dispute", "resolution"], "keywords": "סכסוך מחלוקת פתרון משא ומתן", "image_url": "whatsapp-evidence/Slide43.PNG"}, {"slide_number": 44, "title": "Slide 44", "category": "conflict", "importance": 4, "tags": ["conflict", "dispute", "resolution"], "keywords": "סכסוך מחלוקת פתרון משא ומתן", "image_url": "whatsapp-evidence/Slide44.PNG"}, {"slide_number": 45, "title": "Slide 45", "category": "conflict", "importance": 4, "tags": ["conflict", "dispute", "resolution"], "keywords": "סכסוך מחלוקת פתרון משא ומתן", "image_url": "whatsapp-evidence/Slide45.PNG"}, {"slide_number": 46, "title": "Slide 46", "category": "conflict", "importance": 4, "tags": ["conflict", "dispute", "resolution"], "keywords": "סכסוך מחלוקת פתרון משא ומתן", "image_url": "whatsapp-evidence/Slide46.PNG"}];
+const EXT_MAIN = [{"title": "קליניקת TCM - חיפוש AI", "description": "אתר הקליניקה המלא עם מערכת חיפוש מבוססת בינה מלאכותית. 411 שאלות בעברית.", "url": "https://avshi2-maker.github.io/tcm-clinical-assistant-2026/", "display_order": 1}, {"title": "רטריט סרי לנקה - עמוד Facebook", "description": "עמוד הפייסבוק של הרטריט - תיעוד שיווקי ותקשורת עם לקוחות.", "url": "https://www.facebook.com/profile.php?viewas=100000686899395&id=61583791313349", "display_order": 2}, {"title": "רטריט סרי לנקה - אתר שיווקי", "description": "אתר השיווק המלא של הרטריט. 6 לקוחות נרשמו = $7,500 הכנסות.", "url": "https://avshi2-maker.github.io/SeriLanka_Hebrew_webSite/", "display_order": 3}, {"title": "רטריט סרי לנקה - אנגלית", "description": "גרסה אנגלית מלאה של אתר הרטריט. נגיש לקהל בינלאומי.", "url": "https://avshi2-maker.github.io/Seri_lanka_Retreat_web/", "display_order": 6}, {"title": "רטריט - דף מידע נרחב", "description": "דף נחיתה מפורט עם כל המידע על הרטריט.", "url": "https://avshi2-maker.github.io/Retreat_information_landpage/", "display_order": 7}, {"title": "רטריט - WhatsApp Landing", "description": "דף נחיתה קצר לשיתוף ב-WhatsApp.", "url": "https://avshi2-maker.github.io/landing_page-small_Srilanka/", "display_order": 8}, {"title": "רטריט - גרסת Welikande", "description": "גרסה מיוחדת להטמעה באתר Welikande המקורי.", "url": "https://avshi2-maker.github.io/sri-lanka-retreat/", "display_order": 9}];
+const EXT_PRIVATE = [{"title": "דף נחיתה - קפסולה אוקסיזן", "description": "דף נחיתה פרטי שבניתי עבור אשת רוני. עבודה נוספת ללא תשלום.", "url": "https://avshi2-maker.github.io/BIO_DrRoni_Clinic_Details/", "display_order": 4}, {"title": "דף נחיתה - ד\"ר רוני", "description": "דף נחיתה פרטי שבניתי עבור חבר של רוני. עבודה נוספת ללא תשלום.", "url": "https://avshi2-maker.github.io/oxygen-module/", "display_order": 5}];
+
+let currentSlideIndex = 0;
+
+// ─── TAB SWITCHING ───
+function switchTab(tabName, event) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const tabContent = document.getElementById(tabName);
+    if (tabContent) tabContent.classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
+    else {
+        const btn = document.querySelector(`button[onclick*="'${tabName}'"]`);
+        if (btn) btn.classList.add('active');
+    }
+    if (tabName === 'evidence') renderEvidence(EVIDENCE_DATA);
+    if (tabName === 'portfolio') renderLinks();
+    scrollToTopMobile();
+    try { history.pushState({tab: tabName}, '', '#' + tabName); } catch(e) {}
+}
+
+function scrollToTopMobile() {
+    window.scrollTo({top:0,left:0,behavior:'instant'});
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+}
+
+window.addEventListener('popstate', function(e) {
+    const tabName = (e.state && e.state.tab) ? e.state.tab : 'background';
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const el = document.getElementById(tabName);
+    if (el) el.classList.add('active');
+    if (tabName === 'evidence') renderEvidence(EVIDENCE_DATA);
+    if (tabName === 'portfolio') renderLinks();
+});
+
+// ─── EVIDENCE RENDERING ───
+function renderEvidence(data) {
+    const grid = document.getElementById('evidence-grid');
+    if (!data || data.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#666;font-size:20px;">❌ אין ראיות התואמות את הסינון</div>';
+        return;
+    }
+    grid.innerHTML = data.map((item, index) => {
+        const allIndex = EVIDENCE_DATA.findIndex(e => e.slide_number === item.slide_number);
+        const tags = (item.tags || []).map(tag => `<span class="evidence-tag">${tag}</span>`).join('');
+        return `<div class="evidence-card ${item.importance === 5 ? 'critical' : ''}">
+            <img src="${item.image_url}" onclick="openCarousel(${allIndex})" loading="lazy">
+            <h3 style="font-size:18px;color:#333;margin-bottom:10px;">${item.title}</h3>
+            ${tags}
+            <button class="back-btn" onclick="switchTab('overview',event)">◀ חזור</button>
+        </div>`;
+    }).join('');
+    document.getElementById('filterCount').textContent = `מציג ${data.length} מתוך ${EVIDENCE_DATA.length} ראיות`;
+}
+
+// ─── FILTERS ───
+function applyFilter() {
+    if (event && event.target) {
+        const btn = event.target;
+        if (btn.hasAttribute('data-category')) {
+            document.querySelectorAll('[data-category]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        if (btn.hasAttribute('data-importance')) {
+            document.querySelectorAll('[data-importance]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+    }
+    let cat = 'all', imp = 'all';
+    document.querySelectorAll('[data-category]').forEach(b => { if (b.classList.contains('active')) cat = b.getAttribute('data-category'); });
+    document.querySelectorAll('[data-importance]').forEach(b => { if (b.classList.contains('active')) imp = b.getAttribute('data-importance'); });
+    const search = (document.getElementById('searchBox').value || '').toLowerCase().trim();
+    const filtered = EVIDENCE_DATA.filter(item => {
+        if (cat !== 'all' && item.category !== cat) return false;
+        if (imp !== 'all' && item.importance !== parseInt(imp)) return false;
+        if (search) {
+            const kw = (item.keywords || '').toLowerCase();
+            const title = (item.title || '').toLowerCase();
+            if (!kw.includes(search) && !title.includes(search)) return false;
+        }
+        return true;
+    });
+    renderEvidence(filtered);
+    const display = document.getElementById('activeFiltersDisplay');
+    const textEl = document.getElementById('activeFiltersText');
+    const filters = [];
+    if (cat !== 'all') filters.push(cat);
+    if (imp !== 'all') filters.push(`חשיבות ${imp}`);
+    if (search) filters.push(`"${search}"`);
+    if (filters.length > 0) { textEl.textContent = filters.join(' + '); display.style.display = 'block'; }
+    else display.style.display = 'none';
+}
+
+function clearAllFilters() {
+    document.querySelectorAll('[data-category]').forEach(b => { b.classList.remove('active'); if (b.getAttribute('data-category') === 'all') b.classList.add('active'); });
+    document.querySelectorAll('[data-importance]').forEach(b => { b.classList.remove('active'); if (b.getAttribute('data-importance') === 'all') b.classList.add('active'); });
+    document.getElementById('searchBox').value = '';
+    renderEvidence(EVIDENCE_DATA);
+    document.getElementById('activeFiltersDisplay').style.display = 'none';
+    document.getElementById('filterCount').textContent = `מציג ${EVIDENCE_DATA.length} מתוך ${EVIDENCE_DATA.length} ראיות`;
+}
+
+// ─── CAROUSEL ───
+function openCarousel(index) {
+    currentSlideIndex = index;
+    showSlide(currentSlideIndex);
+    document.getElementById('imageModal').style.display = 'block';
+}
+function closeModal() { document.getElementById('imageModal').style.display = 'none'; }
+function changeSlide(dir) {
+    currentSlideIndex += dir;
+    if (currentSlideIndex >= EVIDENCE_DATA.length) currentSlideIndex = 0;
+    if (currentSlideIndex < 0) currentSlideIndex = EVIDENCE_DATA.length - 1;
+    showSlide(currentSlideIndex);
+}
+function showSlide(index) {
+    document.getElementById('modalImage').src = EVIDENCE_DATA[index].image_url;
+    document.getElementById('slideCounter').textContent = `${index + 1} / ${EVIDENCE_DATA.length}`;
+}
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('imageModal').style.display === 'block') {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+        if (e.key === 'Escape') closeModal();
+    }
+});
+
+// ─── PORTFOLIO LINKS ───
+function renderLinks() {
+    renderLinkGroup(EXT_MAIN, 'mainProjectLinks', '#2196f3', '#1976d2');
+    renderLinkGroup(EXT_PRIVATE, 'privateWorkLinks', '#f57c00', '#e65100');
+}
+function renderLinkGroup(links, containerId, color, hoverColor) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!links || links.length === 0) { el.innerHTML = '<p style="color:#999;text-align:center;">אין קישורים זמינים</p>'; return; }
+    el.innerHTML = links.map(link => `
+        <div style="background:#f5f5f5;padding:20px;border-radius:10px;border-right:4px solid ${color};display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+            <div style="flex:1;min-width:250px;">
+                <h5 style="color:${color};font-size:18px;margin-bottom:8px;">${link.title}</h5>
+                <p style="font-size:14px;color:#666;margin:0;">${link.description || ''}</p>
+            </div>
+            <a href="${link.url}" target="_blank" rel="noopener noreferrer" style="background:${color};color:white;padding:12px 25px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:bold;">🔗 צפה באתר →</a>
+        </div>
+    `).join('');
+}
+
+// ─── INTEREST CALCULATOR ───
+const invoices = [
+    {id:1, amount:10370, startDate:'2026-02-15', dailyRate:3.83},
+    {id:2, amount:5400,  startDate:'2026-02-11', dailyRate:2.00},
+    {id:3, amount:24000, startDate:'2026-02-15', dailyRate:8.88}
+];
+function calcInvoice(id) {
+    const inv = invoices.find(i => i.id === id);
+    const days = Math.floor((new Date() - new Date(inv.startDate)) / 86400000);
+    const interest = days * inv.dailyRate;
+    return {days, interest, total: inv.amount + interest};
+}
+function updateAllCalc() {
+    let totalInterest = 0, grandTotal = 0;
+    for (let i = 1; i <= 3; i++) {
+        const c = calcInvoice(i);
+        const el = id => document.getElementById(id);
+        if (el(`days${i}`)) {
+            el(`days${i}`).textContent = c.days;
+            el(`interest${i}`).textContent = `₪${c.interest.toFixed(2)}`;
+            el(`total${i}`).textContent = `₪${c.total.toLocaleString('he-IL',{minimumFractionDigits:2})}`;
+            el(`interestSum${i}`).textContent = `₪${c.interest.toFixed(2)}`;
+            el(`totalSum${i}`).textContent = `₪${c.total.toLocaleString('he-IL',{minimumFractionDigits:2})}`;
+        }
+        totalInterest += c.interest;
+        grandTotal += c.total;
+    }
+    const qi = document.getElementById('quick-interest');
+    if (qi) {
+        document.getElementById('quick-interest').textContent = `₪${Math.round(totalInterest).toLocaleString('he-IL')}`;
+        document.getElementById('quick-total').textContent = `₪${Math.round(grandTotal).toLocaleString('he-IL')}`;
+        const maxDays = Math.max(...invoices.map((_,i) => calcInvoice(i+1).days));
+        document.getElementById('quick-days').textContent = maxDays;
+    }
+    const ci = document.getElementById('combinedInterest');
+    if (ci) {
+        ci.textContent = `₪${totalInterest.toLocaleString('he-IL',{minimumFractionDigits:2})}`;
+        document.getElementById('combinedTotal').textContent = `₪${grandTotal.toLocaleString('he-IL',{minimumFractionDigits:2})}`;
+        document.getElementById('calculationDate').textContent = new Date().toLocaleDateString('he-IL',{year:'numeric',month:'long',day:'numeric'});
+    }
+}
+setTimeout(updateAllCalc, 100);
+setInterval(updateAllCalc, 3600000);
+
+// ─── DOWNLOAD COMMENT ───
+function downloadComment() {
+    const text = document.getElementById('comment-dialogue').value;
+    const statusEl = document.getElementById('save-status-dialogue');
+    if (!text || !text.trim()) { statusEl.style.color='#f57c00'; statusEl.textContent='⚠️ נא להזין תגובה קודם'; return; }
+    const content = `תגובת רוני ספיר לדף הראיות\nתאריך: ${new Date().toLocaleString('he-IL')}\n\n${text}\n\n---\nשלח ל: avshi2@gmail.com`;
+    const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'response_to_avshi.txt';
+    a.click();
+    statusEl.style.color='#2e7d32';
+    statusEl.textContent='✅ הקובץ הורד! שלח אותו ל-avshi2@gmail.com';
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('he-IL',{year:'numeric',month:'long',day:'numeric'});
+    const bg = document.getElementById('background');
+    if (bg) bg.classList.add('active');
+    const firstTab = document.querySelector('.tab');
+    if (firstTab) firstTab.classList.add('active');
+    try { history.replaceState({tab:'background'}, '', '#background'); } catch(e) {}
+});
+</script>
+</body>
+</html>
